@@ -1,0 +1,3 @@
+# This file keeps the .images directory in version control
+# Docker image archives (.tar.gz files) will be stored here
+# Add *.tar.gz to .gitignore to prevent committing large image files

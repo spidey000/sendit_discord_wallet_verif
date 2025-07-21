@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  sendit-bot:
+    build: .
+    image: sendit-discord-bot:latest
+    container_name: sendit-bot
+    restart: unless-stopped
+    
+    # Environment variables (load from .env file)
+    env_file:
+      - .env
+    
+    # Additional environment overrides
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+    
+    # Port mapping
+    ports:
+      - "8080:8080"
+      - "443:443"  # For HTTPS if enabled
+    
+    # Volume mounts for persistence
+    volumes:
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+      - ./config:/app/config:ro  # Read-only config
+      # SSL certificates (if using HTTPS)
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Security
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # Set to true if you want read-only filesystem
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=100m
+    
+    # Network
+    networks:
+      - sendit-network
+
+# Custom network for isolation
+networks:
+  sendit-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+
+# Named volumes for data persistence
+volumes:
+  sendit-logs:
+    driver: local
+  sendit-backups:
+    driver: local

@@ -1,0 +1,26 @@
+{
+    "mcpServers": {
+      "supabase": {
+        "command": "cmd",
+        "args": [
+          "/c",
+          "npx",
+          "-y",
+          "@supabase/mcp-server-supabase@latest",
+          "--read-only",
+          "--project-ref=bnpqjqzviwgpgidbxqdt"
+        ],
+        "env": {
+          "SUPABASE_ACCESS_TOKEN": "sbp_a4007b54ca5b7ad5f2bce1ceaa540b3596c95314"
+        }
+      },
+      "chrome-devtools": {
+        "command": "python",
+        "args": ["chrome-devtools-mcp/server.py", "-s", "user"],
+        "env": {
+          "CHROME_DEBUG_PORT": "9222"
+        }
+      }
+    }
+  }
+  

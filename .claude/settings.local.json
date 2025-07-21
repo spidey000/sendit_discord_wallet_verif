@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "WebFetch(*)",
+      "WebFetch(domain:app.unpkg.com)",
+      "read(*)",
+      "write(*)",
+      "search(*)",
+      "Bash(rm:*)",
+      "Bash(ls:*)",
+      "Bash(python:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:supabase.com)",
+      "Bash(set SUPABASE_ACCESS_TOKEN=sbp_a4007b54ca5b7ad5f2bce1ceaa540b3596c95314)",
+      "Bash(claude mcp:*)",
+      "Bash(compgen:*)",
+      "Bash(chmod:*)",
+      "Bash(where ngrok)",
+      "Bash(dos2unix:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(sed:*)",
+      "WebFetch(domain:docs.portainer.io)",
+      "WebFetch(domain:github.com)",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_tables",
+      "git(*)",
+      "Bash(cp:*)",
+      "Bash(for file in bot/cogs/*.py)",
+      "Bash(do echo \"Processing $file\")",
+      "Bash(done)",
+      "Bash(pkill:*)",
+      "Bash(mv:*)",
+      "WebFetch(domain:context7.com)",
+      "WebFetch(domain:nginx.org)",
+      "Bash(nginx:*)",
+      "Bash(git clone:*)",
+      "Bash(pip install:*)",
+      "Bash(where chrome)",
+      "Bash(dir:*)",
+      "Bash(powershell:*)",
+      "Bash(\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --remote-debugging-port=9222)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
+}

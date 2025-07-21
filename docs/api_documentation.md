@@ -298,23 +298,69 @@ All API requests are logged with:
 
 ## Deployment Configuration
 
+### Direct Server Deployment (No Nginx Required)
+
+The bot runs its own HTTP/HTTPS server directly without requiring Nginx reverse proxy:
+
 ### Environment Variables
 ```env
+DISCORD_TOKEN=your_discord_bot_token
+DATABASE_URL=postgresql://user:pass@host:port/dbname
 JWT_SECRET=your_very_secure_random_string_minimum_32_characters_long
+
+# Optional SSL Configuration (for HTTPS)
+SSL_CERT_PATH=/etc/letsencrypt/live/custom_domain.app/fullchain.pem
+SSL_KEY_PATH=/etc/letsencrypt/live/custom_domain.app/privkey.pem
+PORT=8080
 ```
 
 ### config.json Settings
 ```json
 {
-  "api_port": 8080,
-  "vercel_frontend_url": "https://your-frontend.vercel.app",
-  "solana_rpc_url": "https://api.mainnet-beta.solana.com"
+  "server": {
+    "port": 8080,
+    "host": "0.0.0.0",
+    "ssl": {
+      "enabled": false,
+      "cert_path": "/etc/letsencrypt/live/custom_domain.app/fullchain.pem",
+      "key_path": "/etc/letsencrypt/live/custom_domain.app/privkey.pem"
+    },
+    "cors": {
+      "origins": ["https://discord-verif-webapp.vercel.app", "http://localhost:3000"],
+      "methods": ["GET", "POST", "OPTIONS"],
+      "headers": ["Content-Type", "Authorization"]
+    }
+  },
+  "features": {
+    "solana_verification": {
+      "vercel_frontend_url": "https://discord-verif-webapp.vercel.app"
+    }
+  }
 }
 ```
 
-### Port Fallback System
-```python
-ports_to_try = [self.api_port, self.api_port + 1, self.api_port + 2, 8081, 8082, 8083]
+### SSL Certificate Setup (Optional)
+For HTTPS support, use Let's Encrypt:
+```bash
+# Install certbot
+sudo apt install certbot
+
+# Generate certificates
+sudo certbot certonly --standalone -d custom_domain.app
+
+# Set environment variables
+export SSL_CERT_PATH="/etc/letsencrypt/live/custom_domain.app/fullchain.pem"
+export SSL_KEY_PATH="/etc/letsencrypt/live/custom_domain.app/privkey.pem"
+```
+
+### Firewall Configuration
+```bash
+# Allow HTTP (port 80) and HTTPS (port 443)
+sudo ufw allow 80
+sudo ufw allow 443
+
+# Or allow custom port
+sudo ufw allow 8080
 ```
 
 ## Testing

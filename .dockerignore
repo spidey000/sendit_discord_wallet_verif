@@ -1,32 +1,201 @@
-# Claude Memory System Files
-claude_memory_*.csv
+# =============================================
+# Sendit Discord Bot - Docker Build Context
+# =============================================
 
-# Git
-.git
+# Version Control & Git
+.git/
 .gitignore
+.gitattributes
+.github/
+.gitlab-ci.yml
 
-# Environment variables
-.env
-.env.local
+# Documentation & Guides  
+*.md
+!README.md
+docs/
+*deployment*.md
+*guide*.md
+*security*.md
 
-# Dependencies
-node_modules/
+# Python Runtime & Cache
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Build outputs
-dist/
-build/
+# Virtual Environments
+venv/
+env/
+.venv/
+.env/
 
-# IDE files
+# Environment Files (production .env will be mounted)
+.env.*
+!.env
+.env.local
+.env.development
+.env.test
+.env.backup
+.env.example
+.env.template
+
+# IDE & Editor Files
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.sublime-project
+.sublime-workspace
+*.code-workspace
 
-# Logs
-*.log
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Development Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build Artifacts & Outputs
+build/
+dist/
+*.egg-info/
+.tox/
+.coverage
+htmlcov/
+.nyc_output/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Temporary Files & Caches
+tmp/
+temp/
+*.tmp
+*.temp
+*.backup
+*.bak
+.cache/
+cache/
+
+# Runtime Data (created in container)
 logs/
+*.log
+*.out
+*.err
+*.pid
+*.seed
+*.pid.lock
 
-# Documentation
-README.md
-*.md
+# Application Data (mounted as volumes)
+backups/
+data/
+uploads/
+downloads/
+
+# Docker Build Files (not needed in container)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+build-docker.sh
+
+# Docker Images & Archives
+.images/
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# Memory System Files (created at runtime)
+claude_memory_*.csv
+
+# Test Files & Coverage
+tests/
+test_*
+*_test.py
+junit.xml
+test-results/
+coverage/
+.pytest_cache/
+
+# Local Configuration Overrides
+config/local.*
+config/development.*
+config/production.*
+local/
+.local/
+override/
+
+# SSL Certificates (mounted from host)
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+cert/
+certs/
+ssl/
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Secrets & Keys (mounted securely)
+secrets/
+.secrets
+*.key
+
+# Monitoring & Analytics
+.nyc_output/
+*.lcov
+
+# CI/CD & Deployment
+.travis.yml
+.circleci/
+deployment/
+deploy/
+.github/workflows/
+
+# Portainer & Container Management
+portainer/
+docker-volumes/
+.portainer/
+
+# Large Media Files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.mp3
+*.wav
+*.flac
+
+# Archive & Backup Files
+*.backup
+dumps/
+
+# Package Manager Files
+Pipfile.lock
+poetry.lock
+
+# Local Development Overrides
+.env.override

@@ -50,6 +50,22 @@
     }
   },
 
+  "server": {
+    "_comment": "Direct server configuration - no nginx needed",
+    "port": 8080,
+    "host": "0.0.0.0",
+    "ssl": {
+      "enabled": false,
+      "cert_path": "/etc/letsencrypt/live/custom_domain.app/fullchain.pem",
+      "key_path": "/etc/letsencrypt/live/custom_domain.app/privkey.pem"
+    },
+    "cors": {
+      "origins": ["https://discord-verif-webapp.vercel.app", "http://localhost:3000"],
+      "methods": ["GET", "POST", "OPTIONS"],
+      "headers": ["Content-Type", "Authorization"]
+    }
+  },
+
   "database": {
     "_comment": "Database URL should be set in .env file as DATABASE_URL",
     "database_url": "postgresql://username:password@localhost:5432/discord_bot"
