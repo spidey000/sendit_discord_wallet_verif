@@ -1,0 +1,32 @@
+# Claude Memory System Files
+claude_memory_*.csv
+
+# Git
+.git
+.gitignore
+
+# Environment variables
+.env
+.env.local
+
+# Dependencies
+node_modules/
+__pycache__/
+
+# Build outputs
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Documentation
+README.md
+*.md

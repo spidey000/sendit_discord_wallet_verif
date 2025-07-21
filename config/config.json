@@ -1,0 +1,57 @@
+{
+  "_comment": "Discord Bot Configuration - sendit Bot",
+  "_version": "2.0",
+  "_last_updated": "2025-07-18",
+
+  "bot_settings": {
+    "bot_owner_id": null,
+    "guild_id": 1393391086860238970
+  },
+
+  "channels": {
+    "welcome_channel_id": 1393391087154102288,
+    "verification_channel_id": 1393391087154102289,
+    "suggestions_channel_id": 1393391087594377352,
+    "xp_bot_channel_id": 1393391087594377349,
+    "log_channel_id": 1393391087154102286,
+    "general_channel_id": 1393391087313223757,
+    "meme_zone": 1393391087313223759,
+    "alpha_talk": 1393391087313223758
+  },
+
+  "roles": {
+    "verified_role_id": 1393391086860238973,
+    "member_role_id": 1393391086860238972,
+    "team_member_role_id": 1393391086877282320,
+    "moderator_roles": [1393391086877282320],
+    "level_roles": {
+      "5": 1393391086860238978,
+      "10": 1393391086860238979
+    }
+  },
+
+  "features": {
+    "suggestions": {
+      "channel_id": 1393391087594377352,
+      "leaderboard_message_id": 1393719172239851683,
+      "accepted_emoji": "✅",
+      "denied_emoji": "❌"
+    },
+    "solana_verification": {
+      "api_port": 8080,
+      "solana_rpc_url": "https://api.mainnet-beta.solana.com",
+      "vercel_frontend_url": "https://discord-verif-webapp.vercel.app/"
+    },
+    "xp_system": {
+      "xp_tracking_channels": [
+        1393391087313223757,
+        1393391087313223758
+      ]
+    }
+  },
+
+  "database": {
+    "_comment": "Database URL should be set in .env file as DATABASE_URL",
+    "database_url": "postgresql://username:password@localhost:5432/discord_bot"
+  }
+}
