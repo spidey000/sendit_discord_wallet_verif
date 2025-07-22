@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-IMAGE_NAME="sendit-discord-bot"
+IMAGE_NAME="sendit-discord-bot-verif"
 IMAGES_DIR=".images"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DATE=$(date '+%Y%m%d_%H%M%S')
@@ -41,8 +41,8 @@ get_next_version() {
     
     # Create images directory if it doesn't exist
     if [ ! -d "$images_dir" ]; then
-        mkdir -p "$images_dir"
-        print_status $YELLOW "Created $images_dir directory"
+        mkdir -p "$images_dir" >&2
+        echo "Created $images_dir directory" >&2
     fi
     
     # Find the latest version from existing .tar files
@@ -50,7 +50,7 @@ get_next_version() {
     
     # Look for version patterns in existing tar files
     if [ -d "$images_dir" ] && [ "$(ls -A $images_dir/*.tar.gz 2>/dev/null)" ]; then
-        print_status $BLUE "Scanning for existing versions in $images_dir..."
+        echo "Scanning for existing versions in $images_dir..." >&2
         
         # Extract versions from filenames like: sendit-discord-bot_v1.5_20250121_143022.tar.gz
         for file in "$images_dir"/${IMAGE_NAME}_v*.tar.gz; do
@@ -58,11 +58,18 @@ get_next_version() {
                 # Extract version using regex (e.g., v1.5 -> 1.5)
                 version=$(basename "$file" | sed -n 's/.*_v\([0-9]\+\.[0-9]\+\)_.*/\1/p')
                 if [ -n "$version" ]; then
-                    print_status $CYAN "Found existing version: v$version"
+                    echo "Found existing version: v$version" >&2
                     
                     # Compare versions (simple numeric comparison)
-                    if (( $(echo "$version > $latest_version" | bc -l) )); then
-                        latest_version=$version
+                    if command -v bc >/dev/null 2>&1; then
+                        if (( $(echo "$version > $latest_version" | bc -l) )); then
+                            latest_version=$version
+                        fi
+                    else
+                        # Simple comparison without bc
+                        if [[ "$version" > "$latest_version" ]]; then
+                            latest_version=$version
+                        fi
                     fi
                 fi
             fi
@@ -72,14 +79,14 @@ get_next_version() {
     # Increment version
     if [ "$latest_version" = "0.0" ]; then
         next_version="1.0"
-        print_status $GREEN "No existing versions found, starting with v$next_version"
+        echo "No existing versions found, starting with v$next_version" >&2
     else
         # Increment minor version (e.g., 1.5 -> 1.6)
         major=$(echo $latest_version | cut -d. -f1)
         minor=$(echo $latest_version | cut -d. -f2)
         next_minor=$((minor + 1))
         next_version="$major.$next_minor"
-        print_status $GREEN "Latest version: v$latest_version, next version: v$next_version"
+        echo "Latest version: v$latest_version, next version: v$next_version" >&2
     fi
     
     echo $next_version

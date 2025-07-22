@@ -31,11 +31,13 @@ The sendit Discord bot provides a comprehensive suite of community engagement fe
 - Automatic verified role assignment
 
 **Technical Implementation**:
-- Integrated aiohttp API server
+- Containerized aiohttp API server
 - NaCl cryptographic signature validation
 - Base58 address format validation
-- Custom JWT secret management
-- Database transaction tracking
+- Container-managed JWT secret environment variables
+- Database transaction tracking with connection pooling
+- Docker health checks for service monitoring
+- Container-based SSL certificate management
 
 ### 5. Text Command System
 
@@ -126,14 +128,23 @@ The sendit Discord bot provides a comprehensive suite of community engagement fe
 
 ### Configuration Management
 
-**Centralized Configuration**:
-- `config.json`: Discord IDs, role mappings, feature settings
-- `messages.json`: All user-facing text content
-- `.env`: Sensitive tokens and secrets
-- Database schema: Flexible data structure
+**Container-Based Configuration**:
+- `config.json`: Discord IDs, role mappings, feature settings (mounted as volume)
+- `messages.json`: All user-facing text content (container read-only)
+- Container environment variables: Sensitive tokens and secrets
+- Docker secrets: Secure secret management
+- Database schema: Flexible data structure with connection pooling
 
-**Feature Toggles**:
-- Individual feature enable/disable capability
-- Channel-specific feature restrictions
-- Role-based access control
-- Configurable rate limits and timeouts
+**Container Feature Management**:
+- Individual feature enable/disable via environment variables
+- Container health checks monitor feature availability
+- Container restart policies ensure feature reliability
+- Configurable resource limits per feature
+
+**Docker Deployment Features**:
+- Container-based secret management
+- Volume persistence for logs and backups
+- Network isolation for security
+- Health monitoring and automatic restart
+- Version-controlled image deployment
+- Container scaling capability

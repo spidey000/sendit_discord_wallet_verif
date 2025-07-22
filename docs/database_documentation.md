@@ -30,8 +30,29 @@ await asyncpg.create_pool(
 - **Connection Pool**: Maximum 5 connections for optimal performance
 
 ### Environment Variables
+
+#### Container Environment
 ```env
-DATABASE_URL=postgresql://postgres.bnpqjqzviwgpgidbxqdt:[PASSWORD]@aws-0-us-east-2.pooler.supabase.com:6543/postgres
+# Docker container environment variable
+DATABASE_URL=postgresql://postgres.[project-id]:[PASSWORD]@aws-0-us-east-2.pooler.supabase.com:6543/postgres
+
+# Container-specific database settings
+DATABASE_POOL_SIZE=5
+DATABASE_POOL_MAX_OVERFLOW=10
+DATABASE_POOL_TIMEOUT=30
+```
+
+#### Docker Compose Configuration
+```yaml
+services:
+  sendit-bot:
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_POOL_SIZE=5
+      - DATABASE_POOL_MAX_OVERFLOW=10
+    # Database connection managed within container
+    networks:
+      - sendit-network  # Isolated container network
 ```
 
 ## Security Implementation
@@ -432,9 +453,83 @@ WHERE sentiment_score IS NOT NULL;
 - **Environment Sync**: Dev/staging/production alignment
 - **Data Validation**: Post-migration verification
 
+## Container-Specific Configuration
+
+### Database Connection in Containers
+```python
+# Container-optimized connection pool
+async def create_db_pool():
+    pool = await asyncpg.create_pool(
+        os.environ['DATABASE_URL'],
+        min_size=int(os.environ.get('DATABASE_POOL_SIZE', 1)),
+        max_size=int(os.environ.get('DATABASE_POOL_MAX_OVERFLOW', 5)),
+        command_timeout=int(os.environ.get('DATABASE_POOL_TIMEOUT', 30)),
+        statement_cache_size=0,  # Required for Supabase pooler
+        server_settings={'application_name': 'sendit_discord_bot_container'}
+    )
+    return pool
+```
+
+### Container Health Checks
+```bash
+# Database connectivity check within container
+docker exec sendit-bot python -c "
+import asyncio
+import asyncpg
+import os
+
+async def test_db():
+    try:
+        conn = await asyncpg.connect(os.environ['DATABASE_URL'])
+        result = await conn.fetchval('SELECT 1')
+        await conn.close()
+        print('Database connection: OK')
+        return True
+    except Exception as e:
+        print(f'Database connection failed: {e}')
+        return False
+
+asyncio.run(test_db())
+"
+```
+
+### Container Resource Limits
+```yaml
+# docker-compose.yml database optimization
+deploy:
+  resources:
+    limits:
+      memory: 1G  # Affects connection pool size
+      cpus: '1.0'
+    reservations:
+      memory: 512M  # Minimum for database operations
+      cpus: '0.5'
+```
+
 ## Troubleshooting
 
-### Common Issues
+### Container-Specific Issues
+
+#### Container Database Connection Failure
+```
+docker exec sendit-bot: database connection failed
+```
+**Solutions**:
+- Verify DATABASE_URL environment variable in container
+- Check container network connectivity
+- Ensure Supabase allows connections from container IP
+- Validate container DNS resolution
+
+#### Container Resource Constraints
+```
+Container killed due to memory limit
+```
+**Solutions**:
+- Increase memory limits in docker-compose.yml
+- Optimize DATABASE_POOL_SIZE for available memory
+- Monitor container memory usage with `docker stats`
+
+### Common Database Issues
 
 #### DuplicatePreparedStatementError
 ```
@@ -442,20 +537,21 @@ asyncpg.exceptions.DuplicatePreparedStatementError: prepared statement already e
 ```
 **Solution**: Ensure `statement_cache_size=0` in connection pool
 
-#### Connection Timeout
+#### Connection Timeout in Container
 ```
 asyncpg.exceptions.ConnectionTimeoutError
 ```
 **Solutions**:
-- Verify internet connectivity
-- Check Supabase pooler status
-- Validate DATABASE_URL format
+- Check container network connectivity
+- Verify Supabase pooler status
+- Validate DATABASE_URL format in container environment
+- Ensure container has internet access
 
-#### Invalid Database URL
+#### Invalid Database URL in Container
 ```
 Invalid database URL format
 ```
-**Solution**: Use correct Transaction pooler URL:
+**Solution**: Use correct Transaction pooler URL in container environment:
 ```
 postgresql://postgres.bnpqjqzviwgpgidbxqdt:[PASSWORD]@aws-0-us-east-2.pooler.supabase.com:6543/postgres
 ```

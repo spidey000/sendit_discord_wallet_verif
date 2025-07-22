@@ -195,23 +195,39 @@ To create the most comprehensive, secure, and engaging Discord community managem
 
 ## Deployment & Operations
 
-### Environment Requirements
-- **Production**: Linux VPS with Python 3.10+
-- **Database**: Supabase with Transaction Pooler
-- **Frontend**: Vercel deployment
-- **Monitoring**: Health checks and alerting
+### Container Environment Requirements
+- **Production**: Docker containerization with Portainer management
+- **Container Runtime**: Docker 20.10+ with multi-stage builds
+- **Base OS**: Linux containers (Ubuntu/Alpine-based)
+- **Resource Requirements**: 1GB RAM, 2 CPU cores minimum per container
+- **Storage**: 20GB for container images, volumes, and logs
+- **Database**: Supabase with Transaction Pooler (external service)
+- **Frontend**: Vercel deployment (external service)
+- **Networking**: Container port mapping (8080:8080) with optional SSL
 
-### Configuration Management
-- **Environment Variables**: Secure token and secret management
-- **Configuration Files**: JSON-based settings
-- **Feature Flags**: Runtime feature toggling
-- **Version Control**: Git-based deployment
+### Container Architecture
+- **Image Building**: Automated build script with versioning (`./build-docker.sh`)
+- **Multi-stage Build**: Optimized Python 3.11-slim containers
+- **Security Model**: Non-root user execution, security constraints
+- **Volume Management**: Persistent storage for logs, backups, configuration
+- **Health Checks**: Built-in Docker health monitoring
+- **Network Isolation**: Custom bridge networks for security
 
-### Monitoring & Alerting
-- **Health Monitoring**: Database, API, and bot health
-- **Performance Metrics**: Response times and throughput
-- **Error Tracking**: Comprehensive error logging
-- **User Analytics**: Engagement and usage patterns
+### Container Configuration Management
+- **Environment Variables**: Container-based secret injection
+- **Volume Mounts**: Configuration files mounted from host
+- **Docker Secrets**: Secure credential management
+- **Image Versioning**: Semantic versioning with build timestamps
+- **Update Strategy**: Blue-green deployments via Portainer
+- **Rollback Capability**: Previous image versions maintained
+
+### Container Monitoring & Operations
+- **Health Monitoring**: Docker health checks with restart policies
+- **Resource Monitoring**: Container CPU, memory, network, disk usage
+- **Log Management**: Structured logging with automatic rotation
+- **Performance Metrics**: Container-aware response time tracking
+- **Backup Strategy**: Volume backup automation
+- **Update Management**: Automated image building and deployment tracking
 
 ## Quality Assurance
 

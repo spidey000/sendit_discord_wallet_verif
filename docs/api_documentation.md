@@ -298,80 +298,109 @@ All API requests are logged with:
 
 ## Deployment Configuration
 
-### Direct Server Deployment (No Nginx Required)
+### Docker Container Deployment (Recommended)
 
-The bot runs its own HTTP/HTTPS server directly without requiring Nginx reverse proxy:
+The bot is designed for containerized deployment using Docker with Portainer management:
 
-### Environment Variables
+### Container Environment Variables
 ```env
+# Core Configuration
 DISCORD_TOKEN=your_discord_bot_token
-DATABASE_URL=postgresql://user:pass@host:port/dbname
-JWT_SECRET=your_very_secure_random_string_minimum_32_characters_long
+DATABASE_URL=postgresql://postgres.[project]:[password]@aws-0-us-east-2.pooler.supabase.com:6543/postgres
+JWT_SECRET=your_super_secure_random_32_character_string_here
 
-# Optional SSL Configuration (for HTTPS)
+# Server Configuration (Container Internal)
+PORT=8080
+HOST=0.0.0.0
+LOG_LEVEL=INFO
+PYTHONUNBUFFERED=1
+
+# Optional SSL Configuration (Mounted from Host)
 SSL_CERT_PATH=/etc/letsencrypt/live/custom_domain.app/fullchain.pem
 SSL_KEY_PATH=/etc/letsencrypt/live/custom_domain.app/privkey.pem
-PORT=8080
+
+# Performance Settings
+DATABASE_POOL_SIZE=5
+DATABASE_POOL_MAX_OVERFLOW=10
+WEB_SERVER_WORKERS=2
 ```
 
-### config.json Settings
-```json
-{
-  "server": {
-    "port": 8080,
-    "host": "0.0.0.0",
-    "ssl": {
-      "enabled": false,
-      "cert_path": "/etc/letsencrypt/live/custom_domain.app/fullchain.pem",
-      "key_path": "/etc/letsencrypt/live/custom_domain.app/privkey.pem"
-    },
-    "cors": {
-      "origins": ["https://discord-verif-webapp.vercel.app", "http://localhost:3000"],
-      "methods": ["GET", "POST", "OPTIONS"],
-      "headers": ["Content-Type", "Authorization"]
-    }
-  },
-  "features": {
-    "solana_verification": {
-      "vercel_frontend_url": "https://discord-verif-webapp.vercel.app"
-    }
-  }
-}
-```
-
-### SSL Certificate Setup (Optional)
-For HTTPS support, use Let's Encrypt:
+### Docker Build & Deployment
 ```bash
-# Install certbot
-sudo apt install certbot
+# Build Docker image with auto-versioning
+./build-docker.sh
 
-# Generate certificates
-sudo certbot certonly --standalone -d custom_domain.app
+# Build with specific version
+./build-docker.sh -v 2.0
 
-# Set environment variables
-export SSL_CERT_PATH="/etc/letsencrypt/live/custom_domain.app/fullchain.pem"
-export SSL_KEY_PATH="/etc/letsencrypt/live/custom_domain.app/privkey.pem"
+# List existing image archives
+./build-docker.sh --list-images
+
+# Deploy via Portainer (manual import)
+# 1. Import .tar.gz from .images/ directory
+# 2. Configure environment variables in Portainer
+# 3. Set up port mapping (8080:8080)
+# 4. Configure volume mounts for persistence
 ```
 
-### Firewall Configuration
-```bash
-# Allow HTTP (port 80) and HTTPS (port 443)
-sudo ufw allow 80
-sudo ufw allow 443
+### Container Networking
+```yaml
+# docker-compose.yml networking
+ports:
+  - "8080:8080"  # HTTP API
+  - "443:443"    # HTTPS (if SSL enabled)
 
-# Or allow custom port
-sudo ufw allow 8080
+# Portainer configuration
+networks:
+  - sendit-network
+
+volumes:
+  - sendit-logs:/app/logs
+  - sendit-backups:/app/backups
+  - /etc/letsencrypt:/etc/letsencrypt:ro  # SSL certificates
+```
+
+### Container Health Checks
+```bash
+# Built-in health check endpoint
+curl http://localhost:8080/api/health
+
+# Docker health check (automatic)
+healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s
+```
+
+### SSL Certificate Management (Container)
+```bash
+# Mount certificates from host
+volumes:
+  - /etc/letsencrypt:/etc/letsencrypt:ro
+
+# Container will automatically detect and use certificates
+# if SSL_CERT_PATH and SSL_KEY_PATH are set
 ```
 
 ## Testing
 
-### Health Check Test
+### Container Health Check
 ```bash
+# Test health endpoint (from host)
 curl -X GET http://localhost:8080/api/health
+
+# Test from inside container
+docker exec sendit-bot curl -f http://localhost:8080/api/health
+
+# Check Docker container health status
+docker inspect sendit-bot --format='{{.State.Health.Status}}'
 ```
 
-### Verification Test
+### Container API Test
 ```bash
+# Test verification endpoint
 curl -X POST http://localhost:8080/api/confirm \
   -H "Content-Type: application/json" \
   -d '{
@@ -379,20 +408,40 @@ curl -X POST http://localhost:8080/api/confirm \
     "wallet": "DV4ACNkpYPcE2PD3kpGGLpEKxVaKFj2TdGCyqLw8D9dV",
     "signature": "test_signature"
   }'
+
+# Test with Portainer exposed port
+curl -X GET http://your-server-ip:8080/api/health
 ```
 
-## Maintenance Notes
+### Container Debugging
+```bash
+# View container logs
+docker logs sendit-bot
+
+# Follow live logs
+docker logs -f sendit-bot
+
+# Access container shell
+docker exec -it sendit-bot /bin/bash
+
+# Check container stats
+docker stats sendit-bot
+```
+
+## Container Maintenance
 
 ### Regular Tasks
-- **JWT Secret Rotation**: Periodic secret updates
-- **Rate Limit Monitoring**: Adjust limits based on usage
-- **Database Cleanup**: Token cleanup task monitoring
-- **Log Analysis**: Regular error pattern analysis
+- **Image Updates**: Build new images with `./build-docker.sh`
+- **Container Recreation**: Update containers via Portainer
+- **Volume Backups**: Backup persistent data volumes
+- **Security Updates**: Regular base image updates
+- **Resource Monitoring**: Monitor container resource usage
 
-### Performance Optimization
-- **Connection Pooling**: Efficient database usage
-- **Memory Management**: Rate limiter cleanup
-- **Response Caching**: Consider caching for repeated requests
+### Container Performance Optimization
+- **Resource Limits**: Configure CPU/memory limits in docker-compose
+- **Volume Optimization**: Use named volumes for better performance
+- **Network Optimization**: Use custom bridge networks
+- **Health Check Tuning**: Adjust health check intervals
 - **Database Indexing**: Optimize token lookup queries
 
 ### Security Updates
